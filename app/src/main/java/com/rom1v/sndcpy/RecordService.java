@@ -24,6 +24,8 @@ import android.os.Message;
 import android.util.Log;
 
 import java.io.IOException;
+import java.lang.invoke.MethodHandles;
+import java.net.Socket;
 
 public class RecordService extends Service {
 
@@ -43,6 +45,7 @@ public class RecordService extends Service {
     private static final int SAMPLE_RATE = 48000;
     private static final int CHANNELS = 2;
 
+    private String ipAndPort;
     private final Handler handler = new ConnectionHandler(this);
     private MediaProjectionManager mediaProjectionManager;
     private MediaProjection mediaProjection;
@@ -58,6 +61,7 @@ public class RecordService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
 
         Notification notification = createNotification(false);
 
@@ -80,6 +84,7 @@ public class RecordService extends Service {
         }
 
         Intent data = intent.getParcelableExtra(EXTRA_MEDIA_PROJECTION_DATA);
+        ipAndPort = data.getStringExtra("ip");
         mediaProjectionManager = (MediaProjectionManager) getSystemService(MEDIA_PROJECTION_SERVICE);
         mediaProjection = mediaProjectionManager.getMediaProjection(Activity.RESULT_OK, data);
         if (mediaProjection != null) {
@@ -107,14 +112,14 @@ public class RecordService extends Service {
     }
 
 
-    private Intent createStopIntent() {
-        Intent intent = new Intent(this, RecordService.class);
+    public static Intent createStopIntent(Context ctx) {
+        Intent intent = new Intent(ctx, RecordService.class);
         intent.setAction(ACTION_STOP);
         return intent;
     }
 
     private Notification.Action createStopAction() {
-        Intent stopIntent = createStopIntent();
+        Intent stopIntent = createStopIntent(this);
         PendingIntent stopPendingIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_ONE_SHOT);
         Icon stopIcon = Icon.createWithResource(this, R.drawable.ic_close_24dp);
         String stopString = getString(R.string.action_stop);
@@ -122,13 +127,19 @@ public class RecordService extends Service {
         return actionBuilder.build();
     }
 
-    private static LocalSocket connect() throws IOException {
+    private static LocalSocket connectAccept() throws IOException {
         LocalServerSocket localServerSocket = new LocalServerSocket(SOCKET_NAME);
         try {
             return localServerSocket.accept();
         } finally {
             localServerSocket.close();
         }
+    }
+
+    private Socket connectAsClient() throws IOException {
+        String[] splat = ipAndPort.split(":");
+        Socket s = new Socket(splat[0], Integer.parseInt(splat[1]));
+        return s;
     }
 
     private static AudioPlaybackCaptureConfiguration createAudioPlaybackCaptureConfig(MediaProjection mediaProjection) {
@@ -161,7 +172,7 @@ public class RecordService extends Service {
         recorderThread = new Thread(new Runnable() {
             @Override
             public void run() {
-                try (LocalSocket socket = connect()) {
+                try (Socket socket = connectAsClient()) {
                     handler.sendEmptyMessage(MSG_CONNECTION_ESTABLISHED);
 
                     recorder.startRecording();
@@ -171,8 +182,8 @@ public class RecordService extends Service {
                         int r = recorder.read(buf, 0, buf.length);
                         socket.getOutputStream().write(buf, 0, r);
                     }
-                } catch (IOException e) {
-                    // ignore
+                } catch (IOException | IndexOutOfBoundsException e) {
+                    Log.e(MethodHandles.lookup().lookupClass().getSimpleName(), "Cannot use socket to connect: ", e);
                 } finally {
                     recorder.stop();
                     stopSelf();

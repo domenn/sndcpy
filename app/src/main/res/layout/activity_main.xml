@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/text_box_ip"
+            android:text="ACTIVE: " />
+
+        <EditText
+            android:id="@+id/text_box_ip"
+            android:layout_width="match_parent"
+            android:text="server:15004"
+
+            android:layout_margin="4dp"
+            android:layout_height="86dp" />
+
+    </LinearLayout>
+
+
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Stream!"
+        android:layout_margin="4dp"
+        android:onClick="button_click" />
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="STOP!"
+        android:layout_margin="4dp"
+        android:onClick="button_click1" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:labelFor="@id/text_box_ip_reserve"
+            android:text="reserve: " />
+
+        <EditText
+            android:id="@+id/text_box_ip_reserve"
+            android:layout_width="match_parent"
+            android:text="server:15004"
+
+            android:layout_margin="4dp"
+            android:layout_height="86dp" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Swap servers!"
+        android:layout_margin="4dp"
+        android:onClick="button_click2" />
+
+</LinearLayout>
