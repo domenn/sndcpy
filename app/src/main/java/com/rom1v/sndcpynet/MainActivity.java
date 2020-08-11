@@ -1,4 +1,4 @@
-package com.rom1v.sndcpy;
+package com.rom1v.sndcpynet;
 
 import android.Manifest;
 import android.app.Activity;

@@ -1,4 +1,4 @@
-package com.rom1v.sndcpy;
+package com.rom1v.sndcpynet;
 
 import android.app.Activity;
 import android.app.Notification;
@@ -25,21 +25,23 @@ import android.util.Log;
 
 import java.io.IOException;
 import java.lang.invoke.MethodHandles;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 
 public class RecordService extends Service {
 
-    private static final String TAG = "sndcpy";
-    private static final String CHANNEL_ID = "sndcpy";
+    private static final String TAG = "sndcpynet";
+    private static final String CHANNEL_ID = "sndcpynet";
     private static final int NOTIFICATION_ID = 1;
 
-    private static final String ACTION_RECORD = "com.rom1v.sndcpy.RECORD";
-    private static final String ACTION_STOP = "com.rom1v.sndcpy.STOP";
+    private static final String ACTION_RECORD = "com.rom1v.sndcpynet.RECORD";
+    private static final String ACTION_STOP = "com.rom1v.sndcpynet.STOP";
     private static final String EXTRA_MEDIA_PROJECTION_DATA = "mediaProjectionData";
 
     private static final int MSG_CONNECTION_ESTABLISHED = 1;
 
-    private static final String SOCKET_NAME = "sndcpy";
+    private static final String SOCKET_NAME = "sndcpynet";
 
 
     private static final int SAMPLE_RATE = 48000;
@@ -138,7 +140,9 @@ public class RecordService extends Service {
 
     private Socket connectAsClient() throws IOException {
         String[] splat = ipAndPort.split(":");
-        Socket s = new Socket(splat[0], Integer.parseInt(splat[1]));
+        Socket s = new Socket();
+        SocketAddress sa = new InetSocketAddress(splat[0], Integer.parseInt(splat[1]));
+        s.connect(sa, 3800);
         return s;
     }
 
